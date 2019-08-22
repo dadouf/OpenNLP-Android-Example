@@ -41,7 +41,10 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
 
-    implementation('org.apache.opennlp:opennlp-tools:1.9.1')/* {
+    // Warning: 1.9.1 doesn't work! Fails when loading NEW models
+    implementation('org.apache.opennlp:opennlp-tools:1.6.0')
+
+    /* {
         // Exclude to avoid javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
 //        exclude group: 'xerces'//, module: 'xercesImpl'
 //        exclude group: 'xml-apis'//, module: 'xercesImpl'
