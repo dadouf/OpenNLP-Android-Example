@@ -3,8 +3,7 @@ package opennlp.duckyapp.com.opennlpandroidexample
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.View
-import android.widget.EditText
+import kotlinx.android.synthetic.main.activity_main.*
 import opennlp.tools.namefind.NameFinderME
 import opennlp.tools.namefind.TokenNameFinderModel
 import opennlp.tools.tokenize.TokenizerME
@@ -13,8 +12,6 @@ import java.io.IOException
 import java.io.InputStream
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var inputEt: EditText
 
     private val tokenizer by lazy {
         loadModel("en-token.bin") { TokenizerME(TokenizerModel(it)) }
@@ -30,23 +27,44 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        inputEt = findViewById(R.id.inputText)
+        // if this work
+//        System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
+//        System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
 
+//        System.setProperty()
+
+//        Log.v("BLAH", "Stuff:" + System.getProperty("javax.xml.parsers.DocumentBuilderFactory"))
+//
+//        val documentBuilderFactory = DocumentBuilderFactory.newInstance()
+//        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+//        val b = documentBuilderFactory.newDocumentBuilder()
+
+//        val f = SAXParserFactory.newInstance()
+//        f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+//        val b = f.newSAXParser()
+
+
+        btn_execute.setOnClickListener {
+            val text = input_text.text.toString()
+            analyzeText(text)
+        }
     }
 
-    @Suppress("UNUSED_PARAMETER") // Listener in XML
-    fun onClickButton(view: View) {
-        val startTime = System.currentTimeMillis()
+    private fun analyzeText(text: String) {
+        Thread {
+            Log.v("OpenNLP", "analyzeText(\"$text\")")
 
-        val text = inputEt.text.toString()
-        val tokens = tokenizer.tokenize(text)
+            val startTime = System.currentTimeMillis()
 
-        Log.i("OpenNLP-Tokens", tokens.toList().toString())
-        Log.i("OpenNLP-PersonNames", personNameFinder.find(tokens).toList().toString())
-        Log.i("OpenNLP-LocationNames", locationNameFinder.find(tokens).toList().toString())
+            val tokens = tokenizer.tokenize(text)
 
-        val consumeTime = System.currentTimeMillis() - startTime
-        Log.d("OpenNLP", "Time to exec: ${consumeTime}ms")
+            Log.i("OpenNLP-Tokens", tokens.toList().toString())
+            Log.i("OpenNLP-PersonNames", personNameFinder.find(tokens).toList().toString())
+            Log.i("OpenNLP-LocationNames", locationNameFinder.find(tokens).toList().toString())
+
+            val consumeTime = System.currentTimeMillis() - startTime
+            Log.d("OpenNLP", "Time to exec: ${consumeTime}ms")
+        }.start()
     }
 
     private fun <T> loadModel(fileName: String, loader: (InputStream) -> T): T {

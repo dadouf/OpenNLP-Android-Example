@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 26
+
     defaultConfig {
         applicationId "opennlp.duckyapp.com.opennlpandroidexample"
         minSdkVersion 15
@@ -13,9 +14,8 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multidex support.
         multiDexEnabled true
-
-
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,22 +23,35 @@ android {
         }
     }
 
-
-
+    // Needed to use NameFinderME!
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
+//configurations.all {
+////    resolutionStrategy {
+////        force 'xerces:xercesImpl:2.11.0'
+////    }
+//}
+
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
     implementation 'com.android.support:appcompat-v7:26.+'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
 
-    implementation 'org.apache.opennlp:opennlp-tools:1.9.1'
+    implementation('org.apache.opennlp:opennlp-tools:1.9.1')/* {
+        // Exclude to avoid javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
+//        exclude group: 'xerces'//, module: 'xercesImpl'
+//        exclude group: 'xml-apis'//, module: 'xercesImpl'
+    }*/
+//    implementation 'xerces:xerces:2.9.0'
+//    implementation 'xerces:xercesImpl:2.11.0'
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
+
 repositories {
     mavenCentral()
 }
