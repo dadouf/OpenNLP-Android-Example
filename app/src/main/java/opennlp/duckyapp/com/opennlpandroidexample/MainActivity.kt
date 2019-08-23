@@ -2,6 +2,7 @@ package opennlp.duckyapp.com.opennlpandroidexample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import opennlp.tools.namefind.NameFinderME
@@ -14,70 +15,97 @@ import java.io.InputStream
 class MainActivity : AppCompatActivity() {
 
     private val tokenizer by lazy {
-        loadModel("en-token.bin") { TokenizerME(TokenizerModel(it)) }
+        loadModelAndMeasure("en-token.bin") { TokenizerME(TokenizerModel(it)) }
     }
     private val personNameFinder by lazy {
-        loadModel("en-ner-person.bin") { NameFinderME(TokenNameFinderModel(it)) }
+        loadModelAndMeasure("en-ner-person.bin") { NameFinderME(TokenNameFinderModel(it)) }
     }
     private val locationNameFinder by lazy {
-        loadModel("en-ner-location.bin") { NameFinderME(TokenNameFinderModel(it)) }
+        loadModelAndMeasure("en-ner-location.bin") { NameFinderME(TokenNameFinderModel(it)) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
-        // if this work
-//        System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
-//        System.setProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl");
+        log_view.movementMethod = ScrollingMovementMethod()
 
-//        System.setProperty()
+        btn_load.setOnClickListener {
+            Thread {
+                log("Loading models...")
 
-//        Log.v("BLAH", "Stuff:" + System.getProperty("javax.xml.parsers.DocumentBuilderFactory"))
-//
-//        val documentBuilderFactory = DocumentBuilderFactory.newInstance()
-//        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-//        val b = documentBuilderFactory.newDocumentBuilder()
+                measure("TOTAL LOAD", indent = "") {
+                    // Call lazy properties to init them
+                    tokenizer
+                    personNameFinder
+                    locationNameFinder
+                }
 
-//        val f = SAXParserFactory.newInstance()
-//        f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-//        val b = f.newSAXParser()
-
+                log("\n")
+            }.start()
+        }
 
         btn_execute.setOnClickListener {
-            val text = input_text.text.toString()
+            val text = edit_text.text.toString()
             analyzeText(text)
+        }
+
+        btn_clear.setOnClickListener {
+            log_view.text = ""
         }
     }
 
     private fun analyzeText(text: String) {
         Thread {
-            Log.v("OpenNLP", "analyzeText(\"$text\")")
+            log("Analyzing text \"$text\"...")
 
-            val startTime = System.currentTimeMillis()
+            measure("TOTAL ANALYZE", indent = "") {
+                val tokens = measure("tokenize") { tokenizer.tokenize(text) }
+                val personNames = measure("find personNames") { personNameFinder.find(tokens) }
+                val locationNames = measure("find locationNames") { locationNameFinder.find(tokens) }
 
-            val tokens = tokenizer.tokenize(text)
+                log("  Tokens: ${tokens.toList()}")
+                log("  PersonNames: ${personNames.toList()}")
+                log("  LocationNames: ${locationNames.toList()}")
+            }
 
-            Log.i("OpenNLP-Tokens", tokens.toList().toString())
-            Log.i("OpenNLP-PersonNames", personNameFinder.find(tokens).toList().toString())
-            Log.i("OpenNLP-LocationNames", locationNameFinder.find(tokens).toList().toString())
-
-            val consumeTime = System.currentTimeMillis() - startTime
-            Log.d("OpenNLP", "Time to exec: ${consumeTime}ms")
+            log("\n")
         }.start()
     }
 
+    private fun <T> loadModelAndMeasure(fileName: String, loader: (InputStream) -> T): T =
+            measure("load $fileName") { loadModel(fileName, loader) }
+
     private fun <T> loadModel(fileName: String, loader: (InputStream) -> T): T {
-        val startTime = System.currentTimeMillis()
+        var stream: InputStream? = null
 
         try {
-            return loader(assets.open(fileName))
+            stream = assets.open(fileName)
+            return loader(stream)
+
         } catch (e: IOException) {
             throw RuntimeException("Error opening model: $fileName", e)
 
         } finally {
-            val consumeTime = System.currentTimeMillis() - startTime
-            Log.d("OpenNLP", "Time to load $fileName: ${consumeTime}ms")
+            stream?.close()
         }
+    }
+
+    private fun <T> measure(operationName: String, indent: String = "  ", block: () -> T): T {
+        val start = System.currentTimeMillis()
+
+        return block().also {
+            val execTime = System.currentTimeMillis() - start
+            log("${indent}Time to $operationName: ${execTime}ms")
+        }
+    }
+
+    private fun log(s: String) {
+        runOnUiThread {
+            log_view.append("$s\n")
+        }
+
+        Log.v("OpenNPL", s)
     }
 }

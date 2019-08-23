@@ -3,15 +3,16 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId "opennlp.duckyapp.com.opennlpandroidexample"
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
         // Enabling multidex support.
         multiDexEnabled true
     }
@@ -23,38 +24,22 @@ android {
         }
     }
 
-    // Needed to use NameFinderME!
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+    // Need Java 8 to use NameFinderME in version 1.9.x
+//    compileOptions {
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//        targetCompatibility JavaVersion.VERSION_1_8
+//    }
 }
-
-//configurations.all {
-////    resolutionStrategy {
-////        force 'xerces:xercesImpl:2.11.0'
-////    }
-//}
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:26.+'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    testImplementation 'junit:junit:4.12'
-
-    // Warning: 1.9.1 doesn't work! Fails when loading NEW models
-    implementation('org.apache.opennlp:opennlp-tools:1.6.0')
-
-    /* {
-        // Exclude to avoid javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
-//        exclude group: 'xerces'//, module: 'xercesImpl'
-//        exclude group: 'xml-apis'//, module: 'xercesImpl'
-    }*/
-//    implementation 'xerces:xerces:2.9.0'
-//    implementation 'xerces:xercesImpl:2.11.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
 
-repositories {
-    mavenCentral()
+    // WARNING:
+    // 1.9.0 / 1.9.1 do not work when loading NameFinderME: https://stackoverflow.com/q/47243013 / https://stackoverflow.com/q/53256823
+    // 1.8.0 / 1.7.0 do not work when using NameFinderME: OutOfMemoryError
+    // 1.6.0 is the latest version that seems to work
+    implementation('org.apache.opennlp:opennlp-tools:1.6.0')
 }

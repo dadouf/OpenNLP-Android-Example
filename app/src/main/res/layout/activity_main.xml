@@ -1,38 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="opennlp.duckyapp.com.opennlpandroidexample.MainActivity">
 
+
+    <Button
+        android:id="@+id/btn_load"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Load models"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btn_execute"
+        app:layout_constraintTop_toBottomOf="@id/edit_text" />
+
     <Button
         android:id="@+id/btn_execute"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:text="Execute" />
+        android:text="Analyze"
+        app:layout_constraintLeft_toRightOf="@id/btn_load"
+        app:layout_constraintRight_toRightOf="@id/btn_clear"
+        app:layout_constraintTop_toBottomOf="@id/edit_text" />
 
-    <ScrollView
+    <Button
+        android:id="@+id/btn_clear"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Clear log"
+        app:layout_constraintLeft_toRightOf="@id/btn_execute"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edit_text" />
+
+    <EditText
+        android:id="@+id/edit_text"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:hint="Enter your text"
+        android:text="Hi David Ferrand. When could you come to New York City?"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_execute"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/log_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:background="#DDDDDD"
+        android:padding="16dp"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_execute" />
 
-            <EditText
-                android:id="@+id/input_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter your text"
-                android:text="Hi David Ferrand. When could you come to New York City?"
-                android:textSize="16dp" />
-
-
-        </LinearLayout>
-
-    </ScrollView>
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
