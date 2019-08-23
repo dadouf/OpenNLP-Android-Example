@@ -6,33 +6,68 @@
     android:layout_height="match_parent"
     tools:context="opennlp.duckyapp.com.opennlpandroidexample.MainActivity">
 
-
     <Button
-        android:id="@+id/btn_load"
+        android:id="@+id/btn_tokenizer_load"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Load models"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/btn_execute"
-        app:layout_constraintTop_toBottomOf="@id/edit_text" />
+        android:text="Load"
+        app:layout_constraintEnd_toStartOf="@+id/btn_ner_persons_load"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_tokenizer" />
 
     <Button
-        android:id="@+id/btn_execute"
+        android:id="@+id/btn_tokenizer_analyze"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Analyze"
-        app:layout_constraintLeft_toRightOf="@id/btn_load"
-        app:layout_constraintRight_toRightOf="@id/btn_clear"
-        app:layout_constraintTop_toBottomOf="@id/edit_text" />
+        app:layout_constraintEnd_toStartOf="@+id/btn_ner_persons_analyze"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_tokenizer_load" />
 
     <Button
-        android:id="@+id/btn_clear"
+        android:id="@+id/btn_ner_locations_analyze"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:text="Analyze"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_ner_persons_analyze"
+        app:layout_constraintTop_toBottomOf="@+id/btn_ner_locations_load" />
+
+
+    <Button
+        android:id="@+id/btn_ner_persons_load"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Load"
+        app:layout_constraintEnd_toStartOf="@+id/btn_ner_locations_load"
+        app:layout_constraintStart_toEndOf="@+id/btn_tokenizer_load"
+        app:layout_constraintTop_toBottomOf="@+id/tv_ner_persons" />
+
+    <Button
+        android:id="@+id/btn_ner_locations_load"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Load"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_ner_persons_load"
+        app:layout_constraintTop_toBottomOf="@+id/tv_ner_locations" />
+
+    <Button
+        android:id="@+id/btn_ner_persons_analyze"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Analyze"
+        app:layout_constraintEnd_toStartOf="@+id/btn_ner_locations_analyze"
+        app:layout_constraintStart_toEndOf="@+id/btn_tokenizer_analyze"
+        app:layout_constraintTop_toBottomOf="@+id/btn_ner_persons_load" />
+
+    <Button
+        android:id="@+id/btn_clear_log"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="Clear log"
-        app:layout_constraintLeft_toRightOf="@id/btn_execute"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edit_text" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/log_view" />
 
     <EditText
         android:id="@+id/edit_text"
@@ -41,8 +76,18 @@
         android:hint="Enter your text"
         android:text="Hi David Ferrand. When could you come to New York City?"
         android:textSize="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_execute"
+        app:layout_constraintBottom_toTopOf="@id/tv_tokenizer"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_tokenizer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Tokenizer"
+        app:layout_constraintEnd_toStartOf="@+id/tv_ner_persons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edit_text" />
 
     <TextView
         android:id="@+id/log_view"
@@ -52,7 +97,28 @@
         android:background="#DDDDDD"
         android:padding="16dp"
         android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_execute" />
+        app:layout_constraintBottom_toTopOf="@id/btn_clear_log"
+        app:layout_constraintTop_toBottomOf="@id/btn_tokenizer_analyze" />
+
+    <TextView
+        android:id="@+id/tv_ner_persons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="NER Persons"
+        app:layout_constraintEnd_toStartOf="@+id/tv_ner_locations"
+        app:layout_constraintStart_toEndOf="@+id/tv_tokenizer"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text" />
+
+    <TextView
+        android:id="@+id/tv_ner_locations"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="NER Locations"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tv_ner_persons"
+        app:layout_constraintTop_toBottomOf="@+id/edit_text" />
 
 </android.support.constraint.ConstraintLayout>

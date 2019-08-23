@@ -14,15 +14,22 @@ import java.io.InputStream
 
 class MainActivity : AppCompatActivity() {
 
-    private val tokenizer by lazy {
-        loadModelAndMeasure("en-token.bin") { TokenizerME(TokenizerModel(it)) }
+    private var tokenizer: TokenizerME? = null
+    private fun loadTokenizer() {
+        tokenizer = loadModel("en-token.bin") { TokenizerME(TokenizerModel(it)) }
     }
-    private val personNameFinder by lazy {
-        loadModelAndMeasure("en-ner-person.bin") { NameFinderME(TokenNameFinderModel(it)) }
+
+    private var personNameFinder: NameFinderME? = null
+    private fun loadPersonsNER() {
+        personNameFinder = loadModel("en-ner-person.bin") { NameFinderME(TokenNameFinderModel(it)) }
     }
-    private val locationNameFinder by lazy {
-        loadModelAndMeasure("en-ner-location.bin") { NameFinderME(TokenNameFinderModel(it)) }
+
+    private var locationNameFinder: NameFinderME? = null
+    private fun loadLocationsNER() {
+        locationNameFinder = loadModel("en-ner-location.bin") { NameFinderME(TokenNameFinderModel(it)) }
     }
+
+    private var latestTokens: Array<String>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,51 +38,43 @@ class MainActivity : AppCompatActivity() {
 
         log_view.movementMethod = ScrollingMovementMethod()
 
-        btn_load.setOnClickListener {
-            Thread {
-                log("Loading models...")
+        btn_tokenizer_load.setOnClickListener { measure("loadTokenizer") { loadTokenizer() } }
+        btn_ner_persons_load.setOnClickListener { measure("loadPersonsNER") { loadPersonsNER() } }
+        btn_ner_locations_load.setOnClickListener { measure("loadLocationsNER") { loadLocationsNER() } }
 
-                measure("TOTAL LOAD", indent = "") {
-                    // Call lazy properties to init them
-                    tokenizer
-                    personNameFinder
-                    locationNameFinder
-                }
-
-                log("\n")
-            }.start()
-        }
-
-        btn_execute.setOnClickListener {
+        btn_tokenizer_analyze.setOnClickListener {
             val text = edit_text.text.toString()
-            analyzeText(text)
+
+            measure("tokenize") {
+                latestTokens = tokenizer?.tokenize(text)
+                        ?: null.also { log("ERROR: tokenizer not loaded\n") }
+            }
+
+            log("Tokens: ${latestTokens?.toList()}")
         }
 
-        btn_clear.setOnClickListener {
+        btn_ner_persons_analyze.setOnClickListener {
+            measure("find person names") {
+                val names = personNameFinder?.find(latestTokens)
+                        ?: null.also { log("ERROR: personNameFinder not loaded\n") }
+
+                log("PersonNames: ${names?.toList()}")
+            }
+        }
+
+        btn_ner_locations_analyze.setOnClickListener {
+            measure("find location names") {
+                val names = locationNameFinder?.find(latestTokens)
+                        ?: null.also { log("ERROR: locationNameFinder not loaded\n") }
+
+                log("LocationNames: ${names?.toList()}")
+            }
+        }
+
+        btn_clear_log.setOnClickListener {
             log_view.text = ""
         }
     }
-
-    private fun analyzeText(text: String) {
-        Thread {
-            log("Analyzing text \"$text\"...")
-
-            measure("TOTAL ANALYZE", indent = "") {
-                val tokens = measure("tokenize") { tokenizer.tokenize(text) }
-                val personNames = measure("find personNames") { personNameFinder.find(tokens) }
-                val locationNames = measure("find locationNames") { locationNameFinder.find(tokens) }
-
-                log("  Tokens: ${tokens.toList()}")
-                log("  PersonNames: ${personNames.toList()}")
-                log("  LocationNames: ${locationNames.toList()}")
-            }
-
-            log("\n")
-        }.start()
-    }
-
-    private fun <T> loadModelAndMeasure(fileName: String, loader: (InputStream) -> T): T =
-            measure("load $fileName") { loadModel(fileName, loader) }
 
     private fun <T> loadModel(fileName: String, loader: (InputStream) -> T): T {
         var stream: InputStream? = null
@@ -92,12 +91,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun <T> measure(operationName: String, indent: String = "  ", block: () -> T): T {
-        val start = System.currentTimeMillis()
+    private fun measure(operationName: String, block: () -> Unit) {
+        background {
+            val start = System.currentTimeMillis()
 
-        return block().also {
-            val execTime = System.currentTimeMillis() - start
-            log("${indent}Time to $operationName: ${execTime}ms")
+            log("START $operationName...")
+
+            block().also {
+                val execTime = System.currentTimeMillis() - start
+                log("END $operationName in ${execTime}ms\n")
+            }
         }
     }
 
@@ -108,4 +111,6 @@ class MainActivity : AppCompatActivity() {
 
         Log.v("OpenNPL", s)
     }
+
+    private fun background(block: () -> Unit) = Thread { block() }.start()
 }
